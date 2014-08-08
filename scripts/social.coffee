@@ -22,6 +22,14 @@
 url = require 'url'
 FB = require 'fb'
 module.exports = (robot) ->
+  robot.router.get "/wot2", (req,res) ->
+    res.end "WOT"
+
+  robot.router.get "/callback/facebook", (req, res) ->
+    console.log req.query.code
+    res.end "OK"
+
+
   auth =
     admin_id: process.env.HUBOT_FB_ADMIN_ID || '27223964'
     app_id: process.env.HUBOT_FB_APP_ID || '364157406939543'
@@ -29,27 +37,7 @@ module.exports = (robot) ->
     access_token: process.env.HUBOT_FB_WEMBLI_TOKEN || "CAAEeP12V3jwBAMhoO88EJNj4HpwJ1ApRz7dttdNjUGj0FJL2ZCl8nHuWGVcOlap1z2IXJvJwGuLz4WurkiVg3hxcae7dByPoQt9qiRMEenfhKdUyZCGZAfQBt8jYvCB9dkYvlmrdoK0cPhJTHg76CsIZAqdt742mnP2sM2aDj2OekRenbiTGgTREX7n4ZClTrvEK65aOPjwZDZD"
     page_id: process.env.HUBOT_FB_WEMBLI_PAGE_ID || "283576331690548"
 
-  FB.setAccessToken auth.access_token
-
-  robot.router.all '/callback/facebook', (req, res) ->
-    console.log(req.params)
-    res.send 'OK'
-
-  robot.respond /wembli facebook post (\S+)\s(\S+)\s(.*)/i, (msg) ->
-      FB.setAccessToken msg.match[1]
-      params =
-        link: msg.match[2]
-        message: msg.match[3]
-        published: false
-
-      console.log params
-      FB.api auth.page_id + '/feed', 'post', params, (res) ->
-        if !res || res.error
-          console.log(res)
-          return
-        msg.send "created post: http://www.facebook.com/wemblifan/posts/" + res.id.split('_')[1]
-
-
+  robot.respond /wembli facebook post (\S+)\s(.*)/i, (msg) ->
 #params =
 #  client_id: auth.app_id
 #  client_secret: auth.app_secret
@@ -83,4 +71,23 @@ module.exports = (robot) ->
 #          console.log(res)
 #          return
 #        msg.send "wembli facebook " + res.id
+
+
+
+
+
+      FB.setAccessToken msg.match[1]
+      params =
+        link: msg.match[2]
+        message: msg.match[3]
+        published: false
+
+      console.log params
+      FB.api auth.page_id + '/feed', 'post', params, (res) ->
+        if !res || res.error
+          console.log(res)
+          return
+        msg.send "created post: http://www.facebook.com/wemblifan/posts/" + res.id.split('_')[1]
+
+
 
